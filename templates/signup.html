@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}
+    Video App Sign Up
+{% endblock %}
+
+{% block content %}
+<h1>Create New Account</h1>
+<div class="form-horizontal">
+    <form action="{{url_for('signup')}}" method="POST">
+        {{ form.csrf_token }} 
+        {% for field in form %} 
+        <div class="form-group">
+            {% if field.name != 'csrf_token' %}
+            <label for="{{field.name}}" class="col-sm-2 control-label">{{ field.label }}</label> <div class="col-sm-3 col-lg-2">{{ field }}</div>
+            <span>
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endif %}
+            </span>
+            {% endif %} 
+            </div>
+        {% endfor %}
+        <button class="btn btn-sm btn-primary col-sm-offset-2" type="submit">Create an Account</button>
+    </form>
+</div>
+{% endblock %}
