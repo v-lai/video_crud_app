@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from forms import SignupForm, LoginForm #, VideoForm
+from flask_modus import Modus
 import os
 
 # for models
@@ -43,7 +44,7 @@ class User(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', users=User.query.all())
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -85,7 +86,7 @@ def login():
             return render_template('login.html', form=form)
         session['username'] = form.username.data
         flash('Welcome back!')
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', id=user.id))
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -97,34 +98,45 @@ def logout():
     flash('You have logged out.')
     return redirect(url_for('index'))
 
-@app.route('/profile')
-def profile():
-    if 'username' not in session:
+@app.route('/profile/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
+def profile(id):
+    user = User.query.filter_by(username=session['username']).first_or_404()
+    if 'username' not in session or user is None:
         return redirect(url_for('login'))
-    
-    user = User.query.filter_by(username = session['username']).first()
-    if user is None:
-        return redirect(url_for('login'))
-    return render_template('profile.html')
 
-@app.route('/profile/edit', methods=['GET', 'POST'])
-def edit_profile():
-    if 'username' not in session:
+    # embed()
+    if request.method == b"PATCH":
+        user.username = request.form['username']
+        user.email = request.form['email']
+        db.session.add(user)
+        db.session.commit()
+        flash("Edited user!")
+        return redirect(url_for('logout'))
+
+    if request.method == b"DELETE":
+        session.pop('username', None)
+        db.session.delete(id)
+        db.session.commit()
+        flash("User deleted!")
+        return redirect(url_for('index'))
+
+    return render_template('profile.html', id=id, user=user, users=User.query.all())
+
+@app.route('/profile/<int:id>/edit', methods=['GET', 'POST'])
+def edit_profile(id):
+    user = User.query.filter_by(username=session['username']).first_or_404()
+    if 'username' not in session or user is None:
         return redirect(url_for('login'))
-    
-    user = User.query.filter_by(username = session['username']).first()
-    if user is None:
-        return redirect(url_for('login'))
-    
+
     form = SignupForm(obj=user)
     form.populate_obj(user)
     if request.method == 'POST' and form.validate():
         db.session.add(user)
         db.session.commit()
-        flash("Edited user! Please login again.")
+        flash("Edited user!")
         return redirect(url_for('logout'))
-    return render_template('edit.html', user=user, form=form)
+    return render_template('edit.html', id=id, user=user, users=User.query.all(), form=form)
 
 
 if __name__ == '__main__':
-    app.run(port=3000,debug=True)
+    app.run(port=3000, debug=True)

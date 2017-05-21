@@ -6,7 +6,7 @@
 {% block content %}
 <h1>Edit Profile</h1>
 <div class="form-horizontal">
-    <form action="{{url_for('edit_profile', user=user)}}" method="POST">
+    <form action="{{url_for('edit_profile', id=id)}}?_method=PATCH" method="POST">
         {{ form.csrf_token }} 
         {% for field in form %} 
         <div class="form-group">
@@ -25,4 +25,9 @@
         <button class="btn btn-warning" type="submit">Edit Profile</button>
     </form>
 </div>
+    <p></p>
+    <form action="{{url_for('profile', id=id)}}?_method=DELETE" method="POST">
+        <input class="btn btn-danger" type="submit" value="Delete User">
+    </form>
+    <p></p>
 {% endblock %}
