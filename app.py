@@ -53,6 +53,14 @@ def signup():
             flash('All fields are required.')
             return render_template('signup.html', form=form)
         newuser = User(request.form['username'], request.form['email'], request.form['password'])
+        user_u = User.query.filter_by(username=request.form['username']).first()
+        user_e = User.query.filter_by(email=request.form['email']).first()
+        if user_u:
+            flash('That username is already taken. Please try another username.')
+            return render_template('signup.html', form=form)
+        if user_e:
+            flash('That email has already been used. Please use a different email.')
+            return render_template('signup.html', form=form)
         db.session.add(newuser)
         db.session.commit()
         session['username'] = newuser.username
@@ -63,14 +71,29 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if 'username' in session:
+        return redirect(url_for('profile'))
     if request.method == 'POST':
         if form.validate() == False:
             flash('All fields are required.')
+            return render_template('login.html', form=form)
+        user = User.query.filter_by(username=request.form['username']).first()
+        if not user or not user.check_password(request.form['password']):
+            flash('Invalid username or password')
             return render_template('login.html', form=form)
         session['username'] = form.username.data
         flash('Welcome back!')
         return redirect(url_for('profile'))
     return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    if 'username' not in session:
+        flash('Please login.')
+        return redirect(url_for('login'))
+    session.pop('username', None)
+    flash('You have logged out.')
+    return redirect(url_for('index'))
 
 @app.route('/profile')
 def profile():

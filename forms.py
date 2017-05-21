@@ -10,9 +10,25 @@ class SignupForm(FlaskForm):
     ])
     confirm = PasswordField('Repeat Password')
 
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+        return True
+
 class LoginForm(FlaskForm):
     username = StringField('Username', [validators.Required("Please enter your username.")])
     password = PasswordField('Password', [validators.Required("Please enter your password.")])
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+        return True
 
 # class VideoForm(FlaskForm):
 #     video = StringField('Video Link', [validators.Length(min=10, max=50)])
