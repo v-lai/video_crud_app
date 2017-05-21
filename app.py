@@ -47,6 +47,8 @@ def index():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if 'username' in session:
+        return redirect(url_for('profile'))
     form = SignupForm()
     if request.method == 'POST':
         if form.validate() == False:
@@ -99,11 +101,30 @@ def logout():
 def profile():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = User.query.filter_by(username = session['username']).first()
     
+    user = User.query.filter_by(username = session['username']).first()
     if user is None:
         return redirect(url_for('login'))
     return render_template('profile.html')
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+def edit_profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.filter_by(username = session['username']).first()
+    if user is None:
+        return redirect(url_for('login'))
+    
+    form = SignupForm(obj=user)
+    form.populate_obj(user)
+    if request.method == 'POST' and form.validate():
+        db.session.add(user)
+        db.session.commit()
+        flash("Edited user! Please login again.")
+        return redirect(url_for('logout'))
+    return render_template('edit.html', user=user, form=form)
+
 
 if __name__ == '__main__':
     app.run(port=3000,debug=True)
