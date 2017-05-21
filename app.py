@@ -1,5 +1,5 @@
-from flask import Flask, request, redirect, url_for, render_template, flash
-from forms import SignupForm #, VideoForm
+from flask import Flask, request, redirect, url_for, render_template, flash, session
+from forms import SignupForm, LoginForm #, VideoForm
 import os
 
 # for models
@@ -52,12 +52,35 @@ def signup():
         if form.validate() == False:
             flash('All fields are required.')
             return render_template('signup.html', form=form)
-        db.session.add(User(request.form['username'], request.form['email'], request.form['password']))
+        newuser = User(request.form['username'], request.form['email'], request.form['password'])
+        db.session.add(newuser)
         db.session.commit()
+        session['username'] = newuser.username
         flash('Thanks for signing up!')
-        return redirect(url_for('index'))
+        return redirect(url_for('profile'))
     return render_template('signup.html', form=form)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if request.method == 'POST':
+        if form.validate() == False:
+            flash('All fields are required.')
+            return render_template('login.html', form=form)
+        session['username'] = form.username.data
+        flash('Welcome back!')
+        return redirect(url_for('profile'))
+    return render_template('login.html', form=form)
+
+@app.route('/profile')
+def profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(username = session['username']).first()
+    
+    if user is None:
+        return redirect(url_for('login'))
+    return render_template('profile.html')
 
 if __name__ == '__main__':
     app.run(port=3000,debug=True)

@@ -10,6 +10,10 @@ class SignupForm(FlaskForm):
     ])
     confirm = PasswordField('Repeat Password')
 
+class LoginForm(FlaskForm):
+    username = StringField('Username', [validators.Required("Please enter your username.")])
+    password = PasswordField('Password', [validators.Required("Please enter your password.")])
+
 # class VideoForm(FlaskForm):
 #     video = StringField('Video Link', [validators.Length(min=10, max=50)])
 #     favorite = BooleanField('Favorite!')

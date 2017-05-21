@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}
+    Video App {{ session['username'] }}'s Page
+{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1>Profile</h1>
+    <h3>This is {{ session['username'] }}'s page</h3>
+</div>
+{% endblock %}
