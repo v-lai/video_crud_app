@@ -74,7 +74,7 @@ def signup():
         db.session.commit()
         session['username'] = newuser.username
         flash('Thanks for signing up!')
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile',id=User.query.first(newuser).id))
     return render_template('/users/signup.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -123,7 +123,7 @@ def profile(id):
 
     if request.method == b"DELETE":
         session.pop('username', None)
-        db.session.delete(id)
+        db.session.delete(user)
         db.session.commit()
         flash("User deleted!")
         return redirect(url_for('index'))
@@ -215,6 +215,7 @@ def v_show(id, vid):
         return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
 
     if request.method == b"DELETE":
+        session.pop('username', None)
         db.session.delete(check_video)
         db.session.commit()
         flash("Video deleted!")

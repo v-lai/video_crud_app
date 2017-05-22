@@ -9,10 +9,10 @@
 <p></p>
 {% for video in videos %}
     {% if 'vimeo' in video.video %}
-    <p><a href="{{url_for('v_show', id=id, vid=video.id)}}">{{video.video}}</a><iframe src="{{video.video|replace("vimeo.com/","player.vimeo.com/video/")}}" width="640" height="268" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></p>
+    <p><a href="{{url_for('v_show', id=id, vid=video.id)}}">{{video.video}}</a><br><iframe src="{{video.video|replace("vimeo.com/","player.vimeo.com/video/")}}" width="640" height="268" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></p>
     {% endif %}
     {% if 'youtube' in video.video %}
-    <p><a href="{{url_for('v_show', id=id, vid=video.id)}}">{{video.video}}</a><iframe width="560" height="315" src="{{video.video|replace("watch?v=","embed/")}}" frameborder="0" allowfullscreen></iframe></p>
+    <p><a href="{{url_for('v_show', id=id, vid=video.id)}}">{{video.video}}</a><br><iframe width="560" height="315" src="{{video.video|replace("watch?v=","embed/")}}" frameborder="0" allowfullscreen></iframe></p>
     {% endif %}
 {% endfor %}
 {% endblock %}
