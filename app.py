@@ -11,11 +11,16 @@ from IPython import embed
 import jinja2
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://localhost/flask-video-app'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+modus = Modus(app)
+
+if os.environ.get('ENV') == 'production':
+    app.config.from_object('config.ProductionConfig')
+else:
+    app.config.from_object('config.DevelopmentConfig')
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 app.jinja_env.undefined = jinja2.StrictUndefined
 app.jinja_env.auto_reload = True
@@ -239,4 +244,4 @@ def v_edit(id, vid):
     return render_template('/videos/edit.html', id=check_user.id, users=User.query.all(), user=check_user, video=check_video, form=vform)
 
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    app.run()
