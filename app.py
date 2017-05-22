@@ -192,5 +192,51 @@ def v_new(id):
     return render_template('/videos/new.html', id=check_user.id, users=User.query.all(), form=vform)
 
 
+@app.route('/profile/<int:id>/videos/<int:vid>', methods=["GET", "PATCH", "DELETE"])
+def v_show(id, vid):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(username=session['username']).first_or_404()
+    if user is None:
+        return redirect(url_for('login'))
+
+    check_user = User.query.filter_by(id=id).first_or_404()
+    check_video = Video.query.filter_by(id=vid).first_or_404()
+    if request.method == b"PATCH":
+        check_video.video = request.form['video']
+        db.session.add(check_video)
+        db.session.commit()
+        flash("Video edited!")
+        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
+
+    if request.method == b"DELETE":
+        db.session.delete(check_video)
+        db.session.commit()
+        flash("Video deleted!")
+        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
+
+    return render_template('/videos/show.html', id=check_user.id, users=User.query.all(), video=check_video, vid=vid)
+
+
+@app.route('/profile/<int:id>/videos/<int:vid>/edit', methods=['GET', 'POST'])
+def v_edit(id, vid):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(username=session['username']).first_or_404()
+    if user is None:
+        return redirect(url_for('login'))
+
+    check_user = User.query.filter_by(id=id).first_or_404()
+    check_video = Video.query.filter_by(id=vid).first_or_404()
+    
+    vform = VideoForm(obj=check_video)
+    vform.populate_obj(check_video)
+    if request.method == 'POST' and vform.validate():
+        db.session.add(check_video)
+        db.session.commit()
+        flash("Edited video!")
+        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
+    return render_template('/videos/edit.html', id=check_user.id, users=User.query.all(), user=check_user, video=check_video, form=vform)
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
