@@ -1,0 +1,17 @@
+{% extends './base.html' %}
+{% block title %}
+    Video App: Your Favorites
+{% endblock %}
+
+{% block content %}
+<h1>Your Favorite Videos</h1>
+{% for video in videos %}
+    {% if 'vimeo' in video.video %}
+    <p><iframe src="{{video.video|replace("vimeo.com/","player.vimeo.com/video/")}}" width="640" height="268" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></p>
+    {% endif %}
+    {% if 'youtube' in video.video %}
+    <p><iframe width="560" height="315" src="{{video.video|replace("watch?v=","embed/")}}" frameborder="0" allowfullscreen></iframe></p>
+    {% endif %}
+{% endfor %}
+<a class="btn btn-success" type="submit" href="{{url_for('v_new', id=id)}}">Add a video</a>
+{% endblock %}

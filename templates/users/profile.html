@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends './base.html' %}
 {% block title %}
     Video App {{ session['username'] }}'s Page
 {% endblock %}
@@ -8,5 +8,5 @@
     <h1>Profile</h1>
     <h3>This is {{ session['username'] }}'s page</h3>
 </div>
-<!--<button class="btn btn-success" type="submit" href="">Add a video</button>-->
+<a class="btn btn-success" href="{{url_for('v_index', id=id)}}">See Favorite Videos</a>
 {% endblock %}

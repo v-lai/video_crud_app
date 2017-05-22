@@ -1,12 +1,12 @@
-{% extends 'base.html' %}
+{% extends './base.html' %}
 {% block title %}
-    Video App Edit {{ session['username'] }}'s Page
+    Video App Login
 {% endblock %}
 
 {% block content %}
-<h1>Edit Profile</h1>
+<h1>User Login</h1>
 <div class="form-horizontal">
-    <form action="{{url_for('edit_profile', id=id)}}?_method=PATCH" method="POST">
+    <form action="{{url_for('login')}}" method="POST">
         {{ form.csrf_token }} 
         {% for field in form %} 
         <div class="form-group">
@@ -22,12 +22,7 @@
             {% endif %} 
             </div>
         {% endfor %}
-        <button class="btn btn-warning" type="submit">Edit Profile</button>
+        <button class="btn btn-success" type="submit">Login</button>
     </form>
 </div>
-    <p></p>
-    <form action="{{url_for('profile', id=id)}}?_method=DELETE" method="POST">
-        <input class="btn btn-danger" type="submit" value="Delete User">
-    </form>
-    <p></p>
 {% endblock %}

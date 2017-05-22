@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, PasswordField, validators
+from wtforms import StringField, IntegerField, BooleanField, PasswordField, validators
 
 class SignupForm(FlaskForm):
     username = StringField('Username', [validators.Length(min=3)])
@@ -30,6 +30,14 @@ class LoginForm(FlaskForm):
             return False
         return True
 
-# class VideoForm(FlaskForm):
-#     video = StringField('Video Link', [validators.Length(min=10, max=50)])
-#     favorite = BooleanField('Favorite!')
+class VideoForm(FlaskForm):
+    video = StringField('Video Link', [validators.Length(min=10, max=50)])
+    confirm = BooleanField('Confirm')
+    
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+        return True
