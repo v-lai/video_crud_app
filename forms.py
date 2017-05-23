@@ -32,7 +32,6 @@ class LoginForm(FlaskForm):
 
 class VideoForm(FlaskForm):
     video = StringField('Video Link', [validators.Length(min=10, max=50)])
-    confirm = BooleanField('Confirm')
     
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

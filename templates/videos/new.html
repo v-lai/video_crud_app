@@ -6,8 +6,8 @@
 {% block content %}
 <h1>Add a New Video</h1>
 <p>You must have videos in the format of: https://[optional www.]youtube.com/watch?v=[video id] or https://[optional www.]vimeo.com/[video id]</p>
-<p>the https is NOT optional and you MUST confirm for the form to be submitted</p>
-<form action="{{url_for('v_new', id=id, form=form)}}" method="POST">
+<p>the https is NOT optional</p>
+<form action="{{url_for('v_new', id=user.id, form=form)}}" method="POST">
      {{ form.csrf_token }} 
      {% for field in form %} 
         {% if field.name != 'csrf_token' %}
@@ -27,6 +27,6 @@
 </form>
 <p></p>
 <p>
-    <a href="{{url_for('v_index', id=id)}}">See all Your Videos</a>
+    <a href="{{url_for('v_index', id=user.id)}}">See all Your Videos</a>
 </p>
 {% endblock %}

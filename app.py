@@ -74,7 +74,7 @@ def signup():
         db.session.commit()
         session['username'] = newuser.username
         flash('Thanks for signing up!')
-        return redirect(url_for('profile',id=User.query.first(newuser).id))
+        return redirect(url_for('profile', id=newuser.id))
     return render_template('/users/signup.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -112,7 +112,6 @@ def profile(id):
     if user is None:
         return redirect(url_for('login'))
 
-    # embed()
     if request.method == b"PATCH":
         user.username = request.form['username']
         user.email = request.form['email']
@@ -128,9 +127,9 @@ def profile(id):
         flash("User deleted!")
         return redirect(url_for('index'))
 
-    return render_template('/users/profile.html', id=id, user=user, users=User.query.all())
+    return render_template('/users/profile.html', user=user, users=User.query.all())
 
-@app.route('/profile/<int:id>/edit', methods=['GET', 'POST'])
+@app.route('/profile/<int:id>/edit')
 def edit_profile(id):
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -139,29 +138,21 @@ def edit_profile(id):
         return redirect(url_for('login'))
 
     form = SignupForm(obj=user)
-    form.populate_obj(user)
-    if request.method == 'POST' and form.validate():
-        db.session.add(user)
-        db.session.commit()
-        flash("Edited user!")
-        return redirect(url_for('logout'))
-    return render_template('/users/edit.html', id=id, user=user, users=User.query.all(), form=form)
+    return render_template('/users/edit.html', user=user, users=User.query.all(), form=form)
 
 
 class Video(db.Model):
     __tablename__ = "videos"
     id = db.Column(db.Integer, primary_key=True)
     video = db.Column(db.VARCHAR(50))
-    confirm = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, video, confirm, user_id):
+    def __init__(self, video, user_id):
         self.video = video
-        self.confirm = confirm
         self.user_id = user_id
 
     def __repr__(self):
-        return "{}, user_id: {}, video: {}, confirm: {}".format(self.user.username, self.user_id, self.video, self.confirm)
+        return "{}, user_id: {}, video: {}".format(self.user.username, self.user_id, self.video)
 
 @app.route('/profile/<int:id>/videos')
 def v_index(id):
@@ -172,7 +163,7 @@ def v_index(id):
         return redirect(url_for('login'))
 
     check_user = User.query.filter_by(id=id).first_or_404()
-    return render_template('/videos/index.html', id=check_user.id, users=User.query.all(), videos=check_user.videos)
+    return render_template('/videos/index.html', user=check_user, users=User.query.all())
 
 @app.route('/profile/<int:id>/videos/new', methods=['GET', 'POST'])
 def v_new(id):
@@ -185,16 +176,11 @@ def v_new(id):
     check_user = User.query.filter_by(id=id).first_or_404()
     vform = VideoForm(request.form)
     if request.method == 'POST' and vform.validate():
-        # embed()
-        if request.form['confirm'] == False:
-            flash("You must confirm before submitting!")
-            return render_template('/videos/new.html', id=check_user.id, users=User.query.all(), form=vform)
-        check_confirm = True
-        db.session.add(Video(request.form['video'], check_confirm, id))
+        db.session.add(Video(request.form['video'], id))
         db.session.commit()
         flash("New video posted!")
-        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
-    return render_template('/videos/new.html', id=check_user.id, users=User.query.all(), form=vform)
+        return redirect(url_for('v_index', id=check_user.id))
+    return render_template('/videos/new.html', user=check_user, users=User.query.all(), form=vform)
 
 
 @app.route('/profile/<int:id>/videos/<int:vid>', methods=["GET", "PATCH", "DELETE"])
@@ -212,18 +198,18 @@ def v_show(id, vid):
         db.session.add(check_video)
         db.session.commit()
         flash("Video edited!")
-        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
+        return redirect(url_for('v_index', id=check_user.id))
 
     if request.method == b"DELETE":
         db.session.delete(check_video)
         db.session.commit()
         flash("Video deleted!")
-        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
+        return redirect(url_for('v_index', id=check_user.id))
 
-    return render_template('/videos/show.html', id=check_user.id, users=User.query.all(), video=check_video, vid=vid)
+    return render_template('/videos/show.html', user=check_user, users=User.query.all(), video=check_video, vid=vid)
 
 
-@app.route('/profile/<int:id>/videos/<int:vid>/edit', methods=['GET', 'POST'])
+@app.route('/profile/<int:id>/videos/<int:vid>/edit')
 def v_edit(id, vid):
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -235,13 +221,7 @@ def v_edit(id, vid):
     check_video = Video.query.filter_by(id=vid).first_or_404()
     
     vform = VideoForm(obj=check_video)
-    vform.populate_obj(check_video)
-    if request.method == 'POST' and vform.validate():
-        db.session.add(check_video)
-        db.session.commit()
-        flash("Edited video!")
-        return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
-    return render_template('/videos/edit.html', id=check_user.id, users=User.query.all(), user=check_user, video=check_video, form=vform)
+    return render_template('/videos/edit.html', user=check_user, users=User.query.all(), video=check_video, form=vform)
 
 if __name__ == '__main__':
     app.run()
