@@ -215,7 +215,6 @@ def v_show(id, vid):
         return redirect(url_for('v_index', id=check_user.id, users=User.query.all(), videos=check_user.videos))
 
     if request.method == b"DELETE":
-        session.pop('username', None)
         db.session.delete(check_video)
         db.session.commit()
         flash("Video deleted!")
